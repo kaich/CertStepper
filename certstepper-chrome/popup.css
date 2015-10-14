@@ -1,0 +1,26 @@
+.highlight {
+  background-color: orange;
+  margin: 10px;
+}
+
+.cert {
+ margin: 5px 0px 5px 0px;
+}
+
+#start {
+  margin: 5px 0px 5px 0px;
+  width: 100%;
+  height: 25px;
+  background-color: green;
+  border-style: none;
+  color: white;
+}
+
+#stop {
+  margin: 5px 0px 5px 0px;
+  width: 100%;
+  height: 25px;
+  background-color: #E66E16;
+  border-style: none;
+  color: white;
+}

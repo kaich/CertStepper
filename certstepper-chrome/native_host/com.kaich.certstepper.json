@@ -1,0 +1,9 @@
+{
+  "name": "com.kaich.certstepper",
+  "description": "My Application deal with cert import export",
+  "path": "usr/bin/certstepper",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://jgjakoiejndkmmlpefopggjpidlhakne/"
+  ]
+}
