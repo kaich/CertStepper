@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener(
         $("#ios-apps").find("[href='/account/ios/certificate/certificateList.action']").click() 
         break;
       case 'choose_cert_type':
-        $("#type-development").attr("checked","checked")
+        $("#type-iosOCSP").attr("checked","checked")
         setTimeout(function() {
           var continue_button = $("a:contains('Continue')"); 
           continue_button.removeClass("disabled")
@@ -64,7 +64,7 @@ chrome.runtime.onMessage.addListener(
         $("a:contains('Submit')")[0].click()
         break;
       case 'choose_profile_type':
-        $("#type-development").attr("checked","checked")
+        $("#type-inhouse").attr("checked","checked")
         setTimeout(function() {
           var continue_button = $("a:contains('Continue')"); 
           continue_button.removeClass("disabled")
@@ -80,13 +80,13 @@ chrome.runtime.onMessage.addListener(
         }, 1000);
       break;
       case 'choose_profile_cert':
-        var select_all = $("div.selectAll > input[type='checkbox']")
-        var all_rows = $("div.rows input[name='certificates']")
-        if(select_all)
-        {
-          select_all.attr("checked","checked")
+        //var select_all = $("div.selectAll > input[type='checkbox']")
+        var all_rows = $("div.rows input[name='certificateIds']")
+        //if(select_all)
+        //{
+          //select_all.attr("checked","checked")
           all_rows.attr("checked","checked")
-        }
+        //}
         setTimeout(function() {
           var continue_button = $("a:contains('Continue')"); 
           continue_button.removeClass("disabled")

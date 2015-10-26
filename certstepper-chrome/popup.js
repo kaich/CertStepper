@@ -17,7 +17,7 @@ $("document").ready(function(){
     $("#root_path").val(bgPage.rootPath)
   }
 
-  if($("#certinfo").val())
+  if($(".cert").val())
   {
     $("#start").text("next")
   }

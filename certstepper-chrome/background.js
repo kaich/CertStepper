@@ -39,7 +39,7 @@
  {
 
 
-  cert_info_array = null
+  cert_info_array = [] 
   step_index  = 0
   is_parsed = false
 
@@ -65,6 +65,7 @@ function  parseData(content)
        {
           switch (index%3) {
             case 0:
+              cert_info = new Object()
               cert_info.user_name = line
               break;
             case 1:
@@ -156,8 +157,8 @@ function nextStepper()
       case 6:
            //fill bundle id content
           sendMessage({
-            "input[name='appIdName']": cert_info_array[0].name,
-            "input[name='explicitIdentifier']": cert_info_array[0].bundle_id,
+            "input[name='appIdName']": cert_info_array[cert_index].name,
+            "input[name='explicitIdentifier']": cert_info_array[cert_index].bundle_id,
             "step": "fill_app_id"
           }) 
        break;
