@@ -37,12 +37,10 @@
 
  function stopStep()
  {
-
-
   cert_info_array = [] 
   step_index  = 0
   is_parsed = false
-
+  cert_index = 0;
  }
 
 function  parseData(content)
@@ -51,7 +49,8 @@ function  parseData(content)
   
   
    var special_char = String.fromCharCode(9)
-   content = content.replace(" " , "")
+   var space_char = String.fromCharCode(32)
+   content = content.replace(space_char , "")
    content = content.replace("\r","")
    content = content.replace("\t","")
    content = content.replace(special_char,"")
@@ -66,13 +65,13 @@ function  parseData(content)
           switch (index%3) {
             case 0:
               cert_info = new Object()
-              cert_info.user_name = line
+              cert_info.user_name = line.replace(space_char,"")
               break;
             case 1:
-              cert_info.password = line
+              cert_info.password = line.replace(space_char,"")
               break;
             case 2:
-              cert_info.bundle_id = line
+              cert_info.bundle_id = line.replace(space_char,"")
               cert_info.name = line.match(/\b\w?\d+\b/)[0]
               cert_info_array.push(cert_info)
               break;

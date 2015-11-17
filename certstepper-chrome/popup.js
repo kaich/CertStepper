@@ -17,7 +17,7 @@ $("document").ready(function(){
     $("#root_path").val(bgPage.rootPath)
   }
 
-  if($(".cert").val())
+  if($(".cert").text())
   {
     $("#start").text("next")
   }
@@ -56,8 +56,9 @@ $("document").ready(function(){
 
   $("#stop").click(function(){
     $("#certinfo").val("")
+    $(".certs").replaceWith("<textarea name='Cert Information' id='certinfo' placeholder='input certification information list' style='overflow:hidden'></textarea>")
     $("#start").text("start") 
-      bgPage.stopStep();
+    bgPage.stopStep();
   })
 
 
