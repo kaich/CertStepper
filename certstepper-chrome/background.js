@@ -65,13 +65,13 @@ function  parseData(content)
           switch (index%3) {
             case 0:
               cert_info = new Object()
-              cert_info.user_name = line.replace(space_char,"")
+              cert_info.user_name = line.replace(/\s/g,"")
               break;
             case 1:
-              cert_info.password = line.replace(space_char,"")
+              cert_info.password = line.replace(/\s/g,"")
               break;
             case 2:
-              cert_info.bundle_id = line.replace(space_char,"")
+              cert_info.bundle_id = line.replace(/\s/g,"")
               cert_info.name = line.match(/\b\w?\d+\b/)[0]
               cert_info_array.push(cert_info)
               break;
