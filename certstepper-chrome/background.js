@@ -72,7 +72,7 @@ function  parseData(content)
               break;
             case 2:
               cert_info.bundle_id = line.replace(/\s/g,"")
-              cert_info.name = line.match(/\b\w?\d+\b/)[0]
+              cert_info.name = line.match(/\b\w?\d+\b/g).join('.')
               cert_info_array.push(cert_info)
               break;
             
