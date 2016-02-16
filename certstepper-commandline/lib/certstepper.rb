@@ -4,6 +4,7 @@ require "json"
 require "cert"
 require "sigh"
 require 'optparse'
+require 'colorize'
 
 class String
     def strip_control_characters()
@@ -71,12 +72,12 @@ module CertStepper
 
              @options = {}
              option_parser = OptionParser.new do |opts|
-               opts.banner = "certstepper File_Path [Options]命令行生成证书和配置文件!\n文件的内容：三行一个循环,依次是开发者账号、密码、唯一标识"
+               opts.banner = "certstepper File_Path [Options]命令行生成证书和配置文件!\n文件的内容：三行一个循环,依次是开发者账号、密码、唯一标识(bundle identifier)"
                @options[:cert_type] = ""
                @options[:profile_type] = "--adhoc" 
                @options[:force] = false
 
-               opts.on('-t cert_type','--type cert_type','生成证书和配置文件的类型') do |value|
+               opts.on('-t cert_type','--type cert_type','生成证书和配置文件的类型 development adhoc distribution') do |value|
                  if value.start_with? 'ad' 
                    @options[:cert_type] = ""
                    @options[:profile_type] = "--adhoc" 
@@ -156,8 +157,12 @@ module CertStepper
             end 
 
             
-            failed_content = "以下账号的证书和配置文件创建失败:\n" + failed_cert_array.join("\n") + "请重新尝试执行命令，如果多次不成功，请检查账号密码的正确性!"
-            puts failed_content 
+            if failed_cert_array.length > 0 
+              failed_content = "以下账号的证书和配置文件创建失败:\n" + failed_cert_array.join("\n") + "请重新尝试执行命令，如果多次不成功，请检查账号密码的正确性!"
+              puts failed_content.colorize(:red) 
+            else
+              puts "证书和配置文件全部创建成功!".colorize(:green)
+            end
 
           end 
 
@@ -269,3 +274,4 @@ module CertStepper
     end
 
 end
+              puts "".colorize(:green)

@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|  
   s.name        = 'certstepper'  
-  s.version     = '1.2.0'  
+  s.version     = '1.2.2'  
   s.date        = '2015-07-20'
   s.executables = %w{ certstepper }  
   s.summary     = "cert simplefy"  
@@ -14,4 +14,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "cert" , '~> 1.2', '>= 1.2.8'
   s.add_runtime_dependency 'sigh', '~> 1.3', '>= 1.3.0'
   s.add_runtime_dependency 'produce' , '~> 1.1', '>= 1.1.1'
+  s.add_runtime_dependency 'colorize' , '~> 0.7', '>= 0.7.7'
 end  
