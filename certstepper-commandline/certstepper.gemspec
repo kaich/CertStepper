@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|  
   s.name        = 'certstepper'  
-  s.version     = '1.2.2'  
-  s.date        = '2015-07-20'
+  s.version     = '1.2.3'  
+  s.date        = '2016-01-17'
   s.executables = %w{ certstepper }  
   s.summary     = "cert simplefy"  
   s.description = "create ios dev cert simple"  

@@ -79,8 +79,8 @@ module CertStepper
 
                opts.on('-t cert_type','--type cert_type','生成证书和配置文件的类型 development adhoc distribution') do |value|
                  if value.start_with? 'ad' 
-                   @options[:cert_type] = ""
-                   @options[:profile_type] = "--adhoc" 
+                   @options[:cert_type] = "--adhoc"
+                   @options[:profile_type] = "" 
                  elsif value.start_with? 'dev' 
                    @options[:cert_type] = "--development"
                    @options[:profile_type] = "--development" 
@@ -143,16 +143,19 @@ module CertStepper
     
                createKeychain cert_path
                system "cert -u #{cert.email} -o #{cert_path}  #{@options[:cert_type]}"
-               dealCert cert_path
+               dealCert cert , cert_path
                 
 
                system "produce -u #{cert.email} -a #{cert.profile_id} --app_name #{cert.profile_name} --skip_itc"
                system "sigh -a #{cert.profile_id} -u #{cert.email} -o #{cert_path} #{@options[:profile_type]}"
                #system "sigh -a #{cert.profile_id} -u #{cert.email} -o #{cert_path} --adhoc"
                
+               
                if !generateCertSuccessfully? cert
                  failed_cert_array << cert.email
                end
+
+               deleteUnusefulFile cert_path
 
             end 
 
@@ -166,23 +169,38 @@ module CertStepper
 
           end 
 
+    end
+
+    def self.deleteUnusefulFile(de_path)
+      console_de_path = de_path.gsub /[\s]/ , "\\ "
+      Dir.entries(de_path).each do |file_name|
+        if file_name.end_with? '.cer' 
+          file_path = "#{de_path}/#{file_name}"
+          system "rm #{console_de_path}/#{file_name}" 
+          system "rm #{console_de_path}/#{File.basename(file_path,'.*')}.p12" 
+          system "rm #{console_de_path}/#{File.basename(file_path,'.*')}.certSigningRequest" 
+        end 
+      end
 
     end
 
     def self.generateCertSuccessfully?(cert)
       cert_path = @@root_path + "/#{cert.profile_name}"
+      puts cert_path
       is_p12_exist = false 
       is_cer_exist = false
       is_provision_exist = false 
-      Dir.entries(de_path).each do |file_name| 
-        if file_name.end_with? ".p12"
-          is_p12_exist = true
-        elsif file_name.end_with? ".cer"
-          is_cer_exist = true
-        elsif file_name.end_with? ".mobileprovision"
-          is_provision_exist = true
+      if File.exists? cert_path 
+        Dir.entries(cert_path).each do |file_name| 
+          if file_name.end_with? ".p12"
+            is_p12_exist = true
+          elsif file_name.end_with? ".cer"
+            is_cer_exist = true
+          elsif file_name.end_with? ".mobileprovision"
+            is_provision_exist = true
+          end
         end
-      end
+      end 
 
       return is_p12_exist && is_cer_exist && is_provision_exist
     end 
@@ -211,7 +229,7 @@ module CertStepper
             	new_cert.password = line_content.strip
             when 2
             	new_cert.profile_id = line_content.strip
-              new_cert.profile_name = line_content.strip.scan(/\b\w?\d+\b/).join ""
+              new_cert.profile_name = line_content
             end
             index+=1
          end 
@@ -246,17 +264,19 @@ module CertStepper
       system "security create-keychain -p 123456 #{@keychain_path}"
     end
 
-    def self.dealCert(de_path)
+    def self.dealCert(cert,de_path)
       console_de_path = de_path.gsub /[\s]/ , "\\ "
       Dir.entries(de_path).each do |file_name|
         if file_name.end_with? '.cer' 
           #system "security add-trusted-cert -r unspecified -k 123456 #{File.expand_path('~')}/Downloads/ios_development.cer"
-          system "security import #{de_path}/#{file_name} -k #{@keychain_path}"
-          system "security export -k #{@keychain_path} -t certs -f pkcs12 -P 123 -o #{console_de_path}/cert.p12"
+          system "security import #{console_de_path}/#{file_name} -k #{@keychain_path}"
+          system "security export -k #{@keychain_path} -t certs -f pkcs12 -P 123 -o #{console_de_path}/#{cert.profile_name}.p12"
           system "security delete-keychain #{@keychain_path}"
+
         end 
       end
     end
+
 
     def self.dealCertByChrome(root_path , profile_name)
       system "security create-keychain -P 123456"
