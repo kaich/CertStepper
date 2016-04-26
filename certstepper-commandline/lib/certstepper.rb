@@ -218,7 +218,8 @@ module CertStepper
       file_content = file_content.gsub /[\r]/,"\n"
       file_content.each_line do |line|
       	 cert_prop_index = index%3
-         line_content = line.gsub! /[\s\n\t\r]/ ,""
+         line_content = line.gsub /[\s\n\t\r]/ ,""
+
          if  line_content !=nil && !line_content.empty?
             case cert_prop_index
             when 0
@@ -269,7 +270,7 @@ module CertStepper
       Dir.entries(de_path).each do |file_name|
         if file_name.end_with? '.cer' 
           #system "security add-trusted-cert -r unspecified -k 123456 #{File.expand_path('~')}/Downloads/ios_development.cer"
-          system "security import #{console_de_path}/#{file_name} -k #{@keychain_path}"
+          system "security import #{console_de_path}/#{file_name} -k #{@keychain_path} -T `which codesign`"
           system "security export -k #{@keychain_path} -t certs -f pkcs12 -P 123 -o #{console_de_path}/#{cert.profile_name}.p12"
           system "security delete-keychain #{@keychain_path}"
 
