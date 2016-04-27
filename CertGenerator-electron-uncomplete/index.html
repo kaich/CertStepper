@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <head>
+    <title>Photon</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/photon.min.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- Javascript -->
+    <!-- <script src="js/menu.js" charset="utf-8"></script> -->
+    <script>window.$ = window.jQuery = require('./js/jquery-2.2.3.min.js');</script>
+    <!-- <script src="js/jquery-2.2.3.min.js" charset="utf-8"></script> -->
+    <script src="js/main.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <div class="window">
+
+      <!-- .toolbar-header sits at the top of your app -->
+      <header class="toolbar toolbar-header">
+        <h1 class="title">Photon</h1>
+      </header>
+
+      <!-- Your app's content goes inside .window-content -->
+      <div class="window-content">
+        <form>
+          <div class="form-group">
+            <div>
+              <label>存储企业账号信息文件路径：</label>
+            </div>
+            <input type="filepath" id="holder" class="form-control" placeholder="拖拽文件到此处"/>
+            <button id="generate_cert" type="submit" class="btn btn-primary">生成证书</button>
+          </div>
+        </form>
+        <div class="cert_log">
+            <p>生成证书信息</p>
+            <div id="info">
+              <p>
+                  this is cert content !
+              </p>
+            </div>
+            <div id="stdout">
+              <pre>执行结果!
+              a1</pre>
+            </div>
+            <div id="stderr">
+              <pre>错误日志！</pre>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
