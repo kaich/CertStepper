@@ -5,6 +5,7 @@ require "cert"
 require "sigh"
 require 'optparse'
 require 'colorize'
+require 'openssl'
 
 class String
     def strip_control_characters()
@@ -127,6 +128,11 @@ module CertStepper
           system("open #{console_root_path}")
           puts "Apple Cert Create Stepper\n"
 
+          @@base_dir = "#{Dir.home}/Library/CertStepper"
+          if !Dir.exist? @@base_dir
+            Dir.mkdir @@base_dir 
+          end
+
           failed_cert_array = []
 
           @@certs.each do |cert|
@@ -134,20 +140,24 @@ module CertStepper
               
              if !generateCertSuccessfully?(cert) || @options[:force] 
                   
-               cert_path = console_root_path + "/#{cert.profile_name}"
-               createDir cert_path
+               cert_path = @@base_dir + "/#{cert.profile_name}"
+               final_path = console_root_path + "/#{cert.profile_name}"
+               createDir final_path
+               if !Dir.exist?  cert_path
+                 Dir.mkdir cert_path 
+               end
 
                keychain_entry = CredentialsManager::AccountManager.new(user:cert.email , password: cert.password)
                keychain_entry.add_to_keychain
 
     
-               createKeychain cert_path
+               #createKeychain cert
                system "cert -u #{cert.email} -o #{cert_path}  #{@options[:cert_type]}"
-               dealCert cert , cert_path
+               dealCert cert , cert_path , final_path
                 
 
                system "produce -u #{cert.email} -a #{cert.profile_id} --app_name #{cert.profile_name} --skip_itc"
-               system "sigh -a #{cert.profile_id} -u #{cert.email} -o #{cert_path} #{@options[:profile_type]}"
+               system "sigh -a #{cert.profile_id} -u #{cert.email} -o #{final_path} #{@options[:profile_type]} -z"
                #system "sigh -a #{cert.profile_id} -u #{cert.email} -o #{cert_path} --adhoc"
                
                
@@ -174,11 +184,9 @@ module CertStepper
     def self.deleteUnusefulFile(de_path)
       console_de_path = de_path.gsub /[\s]/ , "\\ "
       Dir.entries(de_path).each do |file_name|
-        if file_name.end_with? '.cer' 
+        if file_name.end_with? '.pem' 
           file_path = "#{de_path}/#{file_name}"
           system "rm #{console_de_path}/#{file_name}" 
-          system "rm #{console_de_path}/#{File.basename(file_path,'.*')}.p12" 
-          system "rm #{console_de_path}/#{File.basename(file_path,'.*')}.certSigningRequest" 
         end 
       end
 
@@ -186,23 +194,20 @@ module CertStepper
 
     def self.generateCertSuccessfully?(cert)
       cert_path = @@root_path + "/#{cert.profile_name}"
-      puts cert_path
       is_p12_exist = false 
-      is_cer_exist = false
       is_provision_exist = false 
       if File.exists? cert_path 
         Dir.entries(cert_path).each do |file_name| 
           if file_name.end_with? ".p12"
             is_p12_exist = true
-          elsif file_name.end_with? ".cer"
-            is_cer_exist = true
           elsif file_name.end_with? ".mobileprovision"
             is_provision_exist = true
           end
         end
       end 
 
-      return is_p12_exist && is_cer_exist && is_provision_exist
+
+      return is_p12_exist  && is_provision_exist
     end 
     
     def self.parseData(start_path)
@@ -260,19 +265,38 @@ module CertStepper
           end
     end
 
-    def self.createKeychain(de_path)
-      @keychain_path = File.expand_path "#{de_path}/CertTempleContainor"
-      system "security create-keychain -p 123456 #{@keychain_path}"
+    def self.createKeychain(cert)
+
+      @@base_dir = "#{Dir.home}/Library/CertStepper"
+      if !Dir.exist? @@base_dir
+        Dir.mkdir @@base_dir 
+      end
+      @keychain_path = File.expand_path "#{@@base_dir}/#{cert.email}#{@options[:cert_type]}"
+      if !Dir.exist? @keychain_path
+        system "security create-keychain -p '' #{@keychain_path}"
+      end
     end
 
-    def self.dealCert(cert,de_path)
+    def self.dealCert(cert,de_path,final_path)
       console_de_path = de_path.gsub /[\s]/ , "\\ "
+      console_final_path = final_path.gsub /[\s]/ , "\\ "
       Dir.entries(de_path).each do |file_name|
         if file_name.end_with? '.cer' 
           #system "security add-trusted-cert -r unspecified -k 123456 #{File.expand_path('~')}/Downloads/ios_development.cer"
-          system "security import #{console_de_path}/#{file_name} -k #{@keychain_path} -T `which codesign`"
-          system "security export -k #{@keychain_path} -t certs -f pkcs12 -P 123 -o #{console_de_path}/#{cert.profile_name}.p12"
-          system "security delete-keychain #{@keychain_path}"
+          #system "security import #{console_de_path}/#{file_name} -k #{@keychain_path} -T `which codesign`"
+          #system "security export -k #{@keychain_path} -t certs -f pkcs12 -P 123 -o #{console_de_path}/#{cert.profile_name}.p12"
+          #system "security delete-keychain #{@keychain_path}"
+          
+          cert_name = File.basename(file_name,File.extname(file_name))
+
+
+          cert_pem = "#{console_de_path}/#{cert_name}CERT.pem"
+          key_pem = "#{console_de_path}/#{cert_name}.p12"
+          merge_pem = "#{console_de_path}/#{cert_name}MER.pem"
+
+          system "openssl x509 -in #{console_de_path}/#{file_name} -inform der -out #{cert_pem}"
+          system "cat #{cert_pem} #{key_pem} > #{merge_pem}"
+          system "openssl pkcs12 -export -in #{merge_pem} -out #{console_final_path}/#{cert.profile_name}.p12 -passout pass:123"
 
         end 
       end
@@ -283,7 +307,7 @@ module CertStepper
       system "security create-keychain -P 123456"
       system "security add-trusted-cert -r unspecified -k 123456 #{File.expand_path('~')}/Downloads/ios_development.cer"
       system "security export -k 123456 -t certs -f pkcs12 -o #{root_path}/#{profile_name}/cert.p12"
-      system "security delete-keychain 123456"
+      #system "security delete-keychain 123456"
     end
 
 
@@ -295,4 +319,3 @@ module CertStepper
     end
 
 end
-              puts "".colorize(:green)
